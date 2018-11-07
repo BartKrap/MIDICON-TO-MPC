@@ -1,14 +1,15 @@
 # MIDICON-TO-MPC
-This code translates midi commands from a MIDIcon and translates it to OSC for use with ONYX
+This code translates midi commands from a midicon and translates it to OSC for use with ONYX
 First of all I have to give a shoutout to Arne Böckmann because of his help making this and since it's based on his original BCF2000 file.
 Please read how to make this script work here:
 https://frickeln.github.io/
 
-To use the midiCON you'll have to install some aditional programs. These programs are loopmidi and midiox.
+To use the midicon you'll have to install some aditional programs. These programs are loopmidi and midiox.
 To install these programs, follow the following link:
 http://controllerforum.elationlighting.com/t/two-identical-midi-devices-not-working-cant-select-the-second-one-in-the-list-solved/2408/3
-You don't need to use the midi out since the midiCON doesn't need the feedback.
-The fader feedback (for use with motorised faders) is still in there for use with the midiCON PRO.
+You don't need to use the midi out since the regular midicon doesn't need the feedback.
+The fader feedback (for use with motorised faders) is still in there for use with the midicon pro.
+This code was written for the midicon 1 but should work with the midicon 2 but I can't test this.
 
 Please note that this is currently V1 so there are some things still missing:
 Currently the following things aren't working (correctly):
