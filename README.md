@@ -1,5 +1,6 @@
 # MIDICON-TO-MPC
-This code translates midi commands from a midicon and translates it to OSC for use with ONYX
+This code translates midi commands from a midicon and translates it to OSC for use with ONYX.
+
 First of all I have to give a shoutout to Arne Böckmann because of his help making this and since it's based on his original BCF2000 file.
 Please read how to make this script work here:
 https://frickeln.github.io/
