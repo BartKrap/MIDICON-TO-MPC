@@ -1,0 +1,730 @@
+@input osc_in OSC "192.168.44.44:9000"
+@output osc_out OSC "192.168.44.44:8000" 1024 0
+@input midi_in MIDI "Midicon fix"
+@output midi_out MIDI ""
+
+@init
+fader_midi_control_numbers = 1024;
+effect_belt_midi_control_numbers = 8000;
+
+/////////////////////////////
+//////BEGIN CONFIGURATION////
+/////////////////////////////
+
+//set midi control numbers of the faders
+//Faders need to be in CC Mode and send values in the range [0..127]
+//Example: If Fader 1 sends CC messages using control number 42, you would set the following:
+//         fader_midi_control_numbers[0] = 42;
+//         Note that the array index is zero-based. Our faders have numbers [1..8] while our array indices have numbers [0..7].
+fader_midi_control_numbers[0] = 1;
+fader_midi_control_numbers[1] = 2;
+fader_midi_control_numbers[2] = 3;
+fader_midi_control_numbers[3] = 4;
+fader_midi_control_numbers[4] = 5;
+fader_midi_control_numbers[5] = 6;
+fader_midi_control_numbers[6] = 7;
+fader_midi_control_numbers[7] = 8;
+
+effect_belt_midi_control_numbers[0] = 14;
+effect_belt_midi_control_numbers[1] = 15;
+effect_belt_midi_control_numbers[2] = 16;
+
+
+/////////////////////////////
+//////END CONFIGURATION//////
+/////////////////////////////
+
+midi_channel_to_fader_num = 2000;
+midi_channel_to_downdown_button_num = 5000;
+midi_channel_to_down_button_num = 7000;
+midi_channel_to_effect_belt_num = 9000;
+midi_channel_to_playback_button_go_num = 11000;
+midi_channel_to_playback_button_flash_num = 13000;
+
+while(
+	midi_channel_to_effect_belt_num[effect_belt_midi_control_numbers[i]] = i;
+	i = i + 1;
+	i < 4;
+   );
+
+
+i = 0;
+while(
+	midi_channel_to_fader_num[fader_midi_control_numbers[i]] = i;
+	i = i + 1;
+	i < 8;
+   );
+
+
+//mapf from arduino (https://gist.github.com/nadavmatalon/71ccaf154bc4bd71f811289e78c65918#file-mapf-ino-L2)
+ function mapf(val in_min in_max out_min out_max)
+ (
+ 	(val - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+ );
+
+
+@oscmsg
+
+match("/Mx/fader/%i", oscstr) ?
+(
+	fader_num = (fmt0 - 4203) / 10;
+	midi_chan = fader_midi_control_numbers[fader_num];
+	//176, 2, 0
+	msg1=176;
+	msg2=midi_chan;
+	msg3=mapf(oscparm(0), 0, 255, 0, 127);
+	midisend(midi_out);
+)
+
+@midimsg
+printf("%d, %d, %d\n", msg1, msg2, msg3);
+//midi_command = msg1 & 0xF0;
+
+//Faders
+msg1 == 0xB0? (
+	osc_fader_number = midi_channel_to_fader_num[msg2] * 10 + 4203;
+	fader_value = mapf(msg3, 0, 127, 0, 255);
+	oscsend(osc_out, "i/Mx/fader/%d", fader_value, osc_fader_number);
+);
+
+//Playback Buttons
+//up up buttons
+msg1 == 0x90? (
+	msg2 == 29 ? (
+		osc_button_number = 4201;
+		msg3 == 127 ? (
+			oscsend(osc_out, "i/Mx/button/%d", 1, osc_button_number);
+		) : (
+			oscsend(osc_out, "i/Mx/button/%d", 0, osc_button_number);
+		);
+	);
+);
+
+msg1 == 0x90? (
+	msg2 == 32 ? (
+		osc_button_number = 4211;
+		msg3 == 127 ? (
+			oscsend(osc_out, "i/Mx/button/%d", 1, osc_button_number);
+		) : (
+			oscsend(osc_out, "i/Mx/button/%d", 0, osc_button_number);
+		);
+	);
+);
+
+msg1 == 0x90? (
+	msg2 == 35 ? (
+		osc_button_number = 4221;
+		msg3 == 127 ? (
+			oscsend(osc_out, "i/Mx/button/%d", 1, osc_button_number);
+		) : (
+			oscsend(osc_out, "i/Mx/button/%d", 0, osc_button_number);
+		);
+	);
+);
+
+msg1 == 0x90? (
+	msg2 == 38 ? (
+		osc_button_number = 4231;
+		msg3 == 127 ? (
+			oscsend(osc_out, "i/Mx/button/%d", 1, osc_button_number);
+		) : (
+			oscsend(osc_out, "i/Mx/button/%d", 0, osc_button_number);
+		);
+	);
+);
+
+msg1 == 0x90? (
+	msg2 == 41 ? (
+		osc_button_number = 4241;
+		msg3 == 127 ? (
+			oscsend(osc_out, "i/Mx/button/%d", 1, osc_button_number);
+		) : (
+			oscsend(osc_out, "i/Mx/button/%d", 0, osc_button_number);
+		);
+	);
+);
+
+msg1 == 0x90? (
+	msg2 == 44 ? (
+		osc_button_number = 4251;
+		msg3 == 127 ? (
+			oscsend(osc_out, "i/Mx/button/%d", 1, osc_button_number);
+		) : (
+			oscsend(osc_out, "i/Mx/button/%d", 0, osc_button_number);
+		);
+	);
+);
+
+msg1 == 0x90? (
+	msg2 == 47 ? (
+		osc_button_number = 4261;
+		msg3 == 127 ? (
+			oscsend(osc_out, "i/Mx/button/%d", 1, osc_button_number);
+		) : (
+			oscsend(osc_out, "i/Mx/button/%d", 0, osc_button_number);
+		);
+	);
+);
+
+msg1 == 0x90? (
+	msg2 == 50 ? (
+		osc_button_number = 4271;
+		msg3 == 127 ? (
+			oscsend(osc_out, "i/Mx/button/%d", 1, osc_button_number);
+		) : (
+			oscsend(osc_out, "i/Mx/button/%d", 0, osc_button_number);
+		);
+	);
+);
+
+//up buttons
+msg1 == 0x90 ? (
+	msg2 == 30 ? (
+		osc_button_number = 4202;
+		msg3 == 127 ? (
+			oscsend(osc_out, "i/Mx/button/%d", 1, osc_button_number);
+		) : (
+			oscsend(osc_out, "i/Mx/button/%d", 0, osc_button_number);
+		);
+	);
+);
+
+msg1 == 0x90 ? (
+	msg2 == 33 ? (
+		osc_button_number = 4212;
+		msg3 == 127 ? (
+			oscsend(osc_out, "i/Mx/button/%d", 1, osc_button_number);
+		) : (
+			oscsend(osc_out, "i/Mx/button/%d", 0, osc_button_number);
+		);
+	);
+);
+
+msg1 == 0x90 ? (
+	msg2 == 36 ? (
+		osc_button_number = 4222;
+		msg3 == 127 ? (
+			oscsend(osc_out, "i/Mx/button/%d", 1, osc_button_number);
+		) : (
+			oscsend(osc_out, "i/Mx/button/%d", 0, osc_button_number);
+		);
+	);
+);
+
+msg1 == 0x90 ? (
+	msg2 == 39 ? (
+		osc_button_number = 4232;
+		msg3 == 127 ? (
+			oscsend(osc_out, "i/Mx/button/%d", 1, osc_button_number);
+		) : (
+			oscsend(osc_out, "i/Mx/button/%d", 0, osc_button_number);
+		);
+	);
+);
+
+msg1 == 0x90 ? (
+	msg2 == 42 ? (
+		osc_button_number = 4242;
+		msg3 == 127 ? (
+			oscsend(osc_out, "i/Mx/button/%d", 1, osc_button_number);
+		) : (
+			oscsend(osc_out, "i/Mx/button/%d", 0, osc_button_number);
+		);
+	);
+);
+
+msg1 == 0x90 ? (
+	msg2 == 45 ? (
+		osc_button_number = 4252;
+		msg3 == 127 ? (
+			oscsend(osc_out, "i/Mx/button/%d", 1, osc_button_number);
+		) : (
+			oscsend(osc_out, "i/Mx/button/%d", 0, osc_button_number);
+		);
+	);
+);
+
+msg1 == 0x90 ? (
+	msg2 == 48 ? (
+		osc_button_number = 4262;
+		msg3 == 127 ? (
+			oscsend(osc_out, "i/Mx/button/%d", 1, osc_button_number);
+		) : (
+			oscsend(osc_out, "i/Mx/button/%d", 0, osc_button_number);
+		);
+	);
+);
+
+msg1 == 0x90 ? (
+	msg2 == 51 ? (
+		osc_button_number = 4272;
+		msg3 == 127 ? (
+			oscsend(osc_out, "i/Mx/button/%d", 1, osc_button_number);
+			) : (
+			oscsend(osc_out, "i/Mx/button/%d", 0, osc_button_number);
+		);
+	);
+);
+
+//down down buttons
+msg1 == 0x90 ? (
+	msg2 == 31 ? (
+		osc_button_number = 4205;
+		msg3 == 127 ? (
+			oscsend(osc_out, "i/Mx/button/%d", 1, osc_button_number);
+			) : (
+			oscsend(osc_out, "i/Mx/button/%d", 0, osc_button_number);
+		);
+	);
+);
+
+msg1 == 0x90 ? (
+	msg2 == 34 ? (
+		osc_button_number = 4215;
+		msg3 == 127 ? (
+			oscsend(osc_out, "i/Mx/button/%d", 1, osc_button_number);
+			) : (
+			oscsend(osc_out, "i/Mx/button/%d", 0, osc_button_number);
+		);
+	);
+);
+
+msg1 == 0x90 ? (
+	msg2 == 37 ? (
+		osc_button_number = 4225;
+		msg3 == 127 ? (
+			oscsend(osc_out, "i/Mx/button/%d", 1, osc_button_number);
+			) : (
+			oscsend(osc_out, "i/Mx/button/%d", 0, osc_button_number);
+		);
+	);
+);
+
+msg1 == 0x90 ? (
+	msg2 == 40 ? (
+		osc_button_number = 4235;
+		msg3 == 127 ? (
+			oscsend(osc_out, "i/Mx/button/%d", 1, osc_button_number);
+			) : (
+			oscsend(osc_out, "i/Mx/button/%d", 0, osc_button_number);
+		);
+	);
+);
+
+msg1 == 0x90 ? (
+	msg2 == 43 ? (
+		osc_button_number = 4245;
+		msg3 == 127 ? (
+			oscsend(osc_out, "i/Mx/button/%d", 1, osc_button_number);
+			) : (
+			oscsend(osc_out, "i/Mx/button/%d", 0, osc_button_number);
+		);
+	);
+);
+
+msg1 == 0x90 ? (
+	msg2 == 46 ? (
+		osc_button_number = 4255;
+		msg3 == 127 ? (
+			oscsend(osc_out, "i/Mx/button/%d", 1, osc_button_number);
+			) : (
+			oscsend(osc_out, "i/Mx/button/%d", 0, osc_button_number);
+		);
+	);
+);
+
+msg1 == 0x90 ? (
+	msg2 == 49 ? (
+		osc_button_number = 4265;
+		msg3 == 127 ? (
+			oscsend(osc_out, "i/Mx/button/%d", 1, osc_button_number);
+			) : (
+			oscsend(osc_out, "i/Mx/button/%d", 0, osc_button_number);
+		);
+	);
+);
+
+msg1 == 0x90 ? (
+	msg2 == 52 ? (
+		osc_button_number = 4275;
+		msg3 == 127 ? (
+			oscsend(osc_out, "i/Mx/button/%d", 1, osc_button_number);
+			) : (
+			oscsend(osc_out, "i/Mx/button/%d", 0, osc_button_number);
+		);
+	);
+);
+
+//Belts
+msg1 == 0xB0? (
+	osc_encoder_number = midi_channel_to_effect_belt_num[msg2] * 10 + 6112;
+	val = 0;
+	msg3 > 0 ? (
+		val = 1;
+	);
+	oscsend(osc_out, "i/Mx/belt/%d", val, osc_encoder_number);
+);
+
+//Control
+
+//Page Up
+msg1 == 0x90 ? (
+	msg2 == 22 ? (
+		msg3 == 127 ? (
+			oscsend(osc_out, "i/Mx/scroll/4110/up", 1);
+		) : (
+			oscsend(osc_out, "i/Mx/scroll/4110/up", 0);
+		);
+	);
+);
+
+//Page Down
+msg1 == 0x90 ? (
+	msg2 == 23 ? (
+		msg3 == 127 ? (
+			oscsend(osc_out, "i/Mx/scroll/4110/down", 1);
+		) : (
+			oscsend(osc_out, "i/Mx/scroll/4110/down", 0);
+		);
+	);
+);
+
+//Clear
+msg1 == 0x90 ? (
+	msg2 == 24 ? (
+		osc_button_number = 5103;
+		msg3 == 127 ? (
+			oscsend(osc_out, "i/Mx/button/%d", 1, osc_button_number);
+		) : (
+			oscsend(osc_out, "i/Mx/button/%d", 0, osc_button_number);
+		);
+	);
+);
+
+//Move
+msg1 == 0x90 ? (
+	msg2 == 25 ? (
+		osc_button_number = 5106;
+		msg3 == 127 ? (
+			oscsend(osc_out, "i/Mx/button/%d", 1, osc_button_number);
+		) : (
+			oscsend(osc_out, "i/Mx/button/%d", 0, osc_button_number);
+		);
+	);
+);
+
+//Delete
+msg1 == 0x90 ? (
+	msg2 == 26 ? (
+		osc_button_number = 5107;
+		msg3 == 127 ? (
+		oscsend(osc_out, "i/Mx/button/%d", 1, osc_button_number);
+		) : (
+		oscsend(osc_out, "i/Mx/button/%d", 0, osc_button_number);
+		);
+	);
+);
+
+//Record
+msg1 == 0x90 ? (
+	msg2 == 27 ? (
+		osc_button_number = 5401;
+		msg3 == 127 ? (
+			oscsend(osc_out, "i/Mx/button/%d", 1, osc_button_number);
+		) : (
+			oscsend(osc_out, "i/Mx/button/%d", 0, osc_button_number);
+		);
+	);
+);
+
+//Buttons
+//CC message
+msg1 == 0x90? (
+	page_number = 1;
+	//the midi control number is used as playback number
+	//note: in osc the playback numbers start at zero
+	playback_number = msg2 - 53;
+	
+	// There are several different strings that can be used depending on what you want to do to the playback
+	// go      - "i/Mx/playback/page%d/%d/go"
+	// release - "i/Mx/playback/page%d/%d/release"
+	// toggle - "i/Mx/playback/page%d/%d/toggle"   //this seems to behave like flash?
+	msg3 == 127 ? (
+		oscsend(osc_out, "i/Mx/playback/page%d/%d/go", 1, page_number, playback_number);
+	) : (
+		oscsend(osc_out, "i/Mx/playback/page%d/%d/go", 0, page_number, playback_number);
+	);
+);
+
+msg1 == 0x91? (
+	page_number = 2;
+	//the midi control number is used as playback number
+	//note: in osc the playback numbers start at zero
+	playback_number = msg2 - 53;
+	
+	// There are several different strings that can be used depending on what you want to do to the playback
+	// go      - "i/Mx/playback/page%d/%d/go"
+	// release - "i/Mx/playback/page%d/%d/release"
+	// toggle - "i/Mx/playback/page%d/%d/toggle"   //this seems to behave like flash?
+	msg3 == 127 ? (
+		oscsend(osc_out, "i/Mx/playback/page%d/%d/go", 1, page_number, playback_number);
+	) : (
+		oscsend(osc_out, "i/Mx/playback/page%d/%d/go", 0, page_number, playback_number);
+	);
+);
+
+msg1 == 0x90? (
+	page_number = 3;
+	
+	//the midi control number is used as playback number
+	//note: in osc the playback numbers start at zero
+	playback_number = msg2 - 53;
+	
+	// There are several different strings that can be used depending on what you want to do to the playback
+	// go      - "i/Mx/playback/page%d/%d/go"
+	// release - "i/Mx/playback/page%d/%d/release"
+	// toggle - "i/Mx/playback/page%d/%d/toggle"   //this seems to behave like flash?
+	msg3 == 127 ? (
+		oscsend(osc_out, "i/Mx/playback/page%d/%d/go", 1, page_number, playback_number);
+	) : (
+		oscsend(osc_out, "i/Mx/playback/page%d/%d/go", 0, page_number, playback_number);
+	);
+);
+
+msg1 == 0x92? (
+	page_number = 3;
+	//the midi control number is used as playback number
+	//note: in osc the playback numbers start at zero
+	playback_number = msg2 - 53;
+	
+	// There are several different strings that can be used depending on what you want to do to the playback
+	// go      - "i/Mx/playback/page%d/%d/go"
+	// release - "i/Mx/playback/page%d/%d/release"
+	// toggle - "i/Mx/playback/page%d/%d/toggle"   //this seems to behave like flash?
+	msg3 == 127 ? (
+		oscsend(osc_out, "i/Mx/playback/page%d/%d/go", 1, page_number, playback_number);
+	) : (
+		oscsend(osc_out, "i/Mx/playback/page%d/%d/go", 0, page_number, playback_number);
+	);
+);
+
+msg1 == 0x93? (
+	page_number = 4;
+	//the midi control number is used as playback number
+	//note: in osc the playback numbers start at zero
+	playback_number = msg2 - 53;
+	
+	// There are several different strings that can be used depending on what you want to do to the playback
+	// go      - "i/Mx/playback/page%d/%d/go"
+	// release - "i/Mx/playback/page%d/%d/release"
+	// toggle - "i/Mx/playback/page%d/%d/toggle"   //this seems to behave like flash?
+	msg3 == 127 ? (
+		oscsend(osc_out, "i/Mx/playback/page%d/%d/go", 1, page_number, playback_number);
+	) : (
+		oscsend(osc_out, "i/Mx/playback/page%d/%d/go", 0, page_number, playback_number);
+	);
+);
+
+msg1 == 0x94? (
+	page_number = 5;
+	//the midi control number is used as playback number
+	//note: in osc the playback numbers start at zero
+	playback_number = msg2 - 53;
+	
+	// There are several different strings that can be used depending on what you want to do to the playback
+	// go      - "i/Mx/playback/page%d/%d/go"
+	// release - "i/Mx/playback/page%d/%d/release"
+	// toggle - "i/Mx/playback/page%d/%d/toggle"   //this seems to behave like flash?
+	msg3 == 127 ? (
+		oscsend(osc_out, "i/Mx/playback/page%d/%d/go", 1, page_number, playback_number);
+	) : (
+		oscsend(osc_out, "i/Mx/playback/page%d/%d/go", 0, page_number, playback_number);
+	);
+);
+
+msg1 == 0x95? (
+	page_number = 6;
+	//the midi control number is used as playback number
+	//note: in osc the playback numbers start at zero
+	playback_number = msg2 - 53;
+	
+	// There are several different strings that can be used depending on what you want to do to the playback
+	// go      - "i/Mx/playback/page%d/%d/go"
+	// release - "i/Mx/playback/page%d/%d/release"
+	// toggle - "i/Mx/playback/page%d/%d/toggle"   //this seems to behave like flash?
+	msg3 == 127 ? (
+		oscsend(osc_out, "i/Mx/playback/page%d/%d/go", 1, page_number, playback_number);
+	) : (
+		oscsend(osc_out, "i/Mx/playback/page%d/%d/go", 0, page_number, playback_number);
+	);
+);
+
+msg1 == 0x96? (
+	page_number = 7;
+	//the midi control number is used as playback number
+	//note: in osc the playback numbers start at zero
+	playback_number = msg2 - 53;
+	
+	// There are several different strings that can be used depending on what you want to do to the playback
+	// go      - "i/Mx/playback/page%d/%d/go"
+	// release - "i/Mx/playback/page%d/%d/release"
+	// toggle - "i/Mx/playback/page%d/%d/toggle"   //this seems to behave like flash?
+	msg3 == 127 ? (
+		oscsend(osc_out, "i/Mx/playback/page%d/%d/go", 1, page_number, playback_number);
+	) : (
+		oscsend(osc_out, "i/Mx/playback/page%d/%d/go", 0, page_number, playback_number);
+	);
+);
+
+msg1 == 0x97? (
+	page_number = 8;
+	//the midi control number is used as playback number
+	//note: in osc the playback numbers start at zero
+	playback_number = msg2 - 53;
+	
+	// There are several different strings that can be used depending on what you want to do to the playback
+	// go      - "i/Mx/playback/page%d/%d/go"
+	// release - "i/Mx/playback/page%d/%d/release"
+	// toggle - "i/Mx/playback/page%d/%d/toggle"   //this seems to behave like flash?
+	msg3 == 127 ? (
+		oscsend(osc_out, "i/Mx/playback/page%d/%d/go", 1, page_number, playback_number);
+	) : (
+		oscsend(osc_out, "i/Mx/playback/page%d/%d/go", 0, page_number, playback_number);
+	);
+);
+
+msg1 == 0x98? (
+	page_number = 9;
+	//the midi control number is used as playback number
+	//note: in osc the playback numbers start at zero
+	playback_number = msg2 - 53;
+	
+	// There are several different strings that can be used depending on what you want to do to the playback
+	// go      - "i/Mx/playback/page%d/%d/go"
+	// release - "i/Mx/playback/page%d/%d/release"
+	// toggle - "i/Mx/playback/page%d/%d/toggle"   //this seems to behave like flash?
+	msg3 == 127 ? (
+		oscsend(osc_out, "i/Mx/playback/page%d/%d/go", 1, page_number, playback_number);
+	) : (
+		oscsend(osc_out, "i/Mx/playback/page%d/%d/go", 0, page_number, playback_number);
+	);
+);
+
+msg1 == 0x99? (
+	page_number = 10;
+	//the midi control number is used as playback number
+	//note: in osc the playback numbers start at zero
+	playback_number = msg2 - 53;
+	
+	// There are several different strings that can be used depending on what you want to do to the playback
+	// go      - "i/Mx/playback/page%d/%d/go"
+	// release - "i/Mx/playback/page%d/%d/release"
+	// toggle - "i/Mx/playback/page%d/%d/toggle"   //this seems to behave like flash?
+	msg3 == 127 ? (
+		oscsend(osc_out, "i/Mx/playback/page%d/%d/go", 1, page_number, playback_number);
+	) : (
+		oscsend(osc_out, "i/Mx/playback/page%d/%d/go", 0, page_number, playback_number);
+	);
+);
+
+msg1 == 0x9A? (
+	page_number = 11;
+	//the midi control number is used as playback number
+	//note: in osc the playback numbers start at zero
+	playback_number = msg2 - 53;
+	
+	// There are several different strings that can be used depending on what you want to do to the playback
+	// go      - "i/Mx/playback/page%d/%d/go"
+	// release - "i/Mx/playback/page%d/%d/release"
+	// toggle - "i/Mx/playback/page%d/%d/toggle"   //this seems to behave like flash?
+	msg3 == 127 ? (
+		oscsend(osc_out, "i/Mx/playback/page%d/%d/go", 1, page_number, playback_number);
+	) : (
+		oscsend(osc_out, "i/Mx/playback/page%d/%d/go", 0, page_number, playback_number);
+	);
+);
+
+msg1 == 0x9B? (
+	page_number = 12;
+	//the midi control number is used as playback number
+	//note: in osc the playback numbers start at zero
+	playback_number = msg2 - 53;
+	
+	// There are several different strings that can be used depending on what you want to do to the playback
+	// go      - "i/Mx/playback/page%d/%d/go"
+	// release - "i/Mx/playback/page%d/%d/release"
+	// toggle - "i/Mx/playback/page%d/%d/toggle"   //this seems to behave like flash?
+	msg3 == 127 ? (
+		oscsend(osc_out, "i/Mx/playback/page%d/%d/go", 1, page_number, playback_number);
+	) : (
+		oscsend(osc_out, "i/Mx/playback/page%d/%d/go", 0, page_number, playback_number);
+	);
+);
+
+msg1 == 0x9C? (
+	page_number = 13;
+	//the midi control number is used as playback number
+	//note: in osc the playback numbers start at zero
+	playback_number = msg2 - 53;
+	
+	// There are several different strings that can be used depending on what you want to do to the playback
+	// go      - "i/Mx/playback/page%d/%d/go"
+	// release - "i/Mx/playback/page%d/%d/release"
+	// toggle - "i/Mx/playback/page%d/%d/toggle"   //this seems to behave like flash?
+	msg3 == 127 ? (
+		oscsend(osc_out, "i/Mx/playback/page%d/%d/go", 1, page_number, playback_number);
+	) : (
+		oscsend(osc_out, "i/Mx/playback/page%d/%d/go", 0, page_number, playback_number);
+	);
+);
+
+msg1 == 0x9D? (
+	page_number = 14;
+	//the midi control number is used as playback number
+	//note: in osc the playback numbers start at zero
+	playback_number = msg2 - 53;
+	
+	// There are several different strings that can be used depending on what you want to do to the playback
+	// go      - "i/Mx/playback/page%d/%d/go"
+	// release - "i/Mx/playback/page%d/%d/release"
+	// toggle - "i/Mx/playback/page%d/%d/toggle"   //this seems to behave like flash?
+	msg3 == 127 ? (
+		oscsend(osc_out, "i/Mx/playback/page%d/%d/go", 1, page_number, playback_number);
+	) : (
+		oscsend(osc_out, "i/Mx/playback/page%d/%d/go", 0, page_number, playback_number);
+	);
+);
+
+msg1 == 0x9E? (
+	page_number = 15;
+	//the midi control number is used as playback number
+	//note: in osc the playback numbers start at zero
+	playback_number = msg2 - 53;
+	
+	// There are several different strings that can be used depending on what you want to do to the playback
+	// go      - "i/Mx/playback/page%d/%d/go"
+	// release - "i/Mx/playback/page%d/%d/release"
+	// toggle - "i/Mx/playback/page%d/%d/toggle"   //this seems to behave like flash?
+	msg3 == 127 ? (
+		oscsend(osc_out, "i/Mx/playback/page%d/%d/go", 1, page_number, playback_number);
+	) : (
+		oscsend(osc_out, "i/Mx/playback/page%d/%d/go", 0, page_number, playback_number);
+	);
+);
+
+msg1 == 0x9F? (
+	page_number = 16;
+	//the midi control number is used as playback number
+	//note: in osc the playback numbers start at zero
+	playback_number = msg2 - 53;
+	
+	// There are several different strings that can be used depending on what you want to do to the playback
+	// go      - "i/Mx/playback/page%d/%d/go"
+	// release - "i/Mx/playback/page%d/%d/release"
+	// toggle - "i/Mx/playback/page%d/%d/toggle"   //this seems to behave like flash?
+	msg3 == 127 ? (
+		oscsend(osc_out, "i/Mx/playback/page%d/%d/go", 1, page_number, playback_number);
+	) : (
+		oscsend(osc_out, "i/Mx/playback/page%d/%d/go", 0, page_number, playback_number);
+	);
+);
